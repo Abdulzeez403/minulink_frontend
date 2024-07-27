@@ -88,7 +88,7 @@ export const columns: ColumnDef<Url>[] = [
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => {
-            const status = row.original.status;\
+            const status = row.original.status;
             return (
                 <div className="flex items-center">
                     <span

@@ -2,11 +2,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
+import { ColumnDef, SortingState, flexRender, getCoreRowModel, getFilteredRowModel, getSortedRowModel, useReactTable } from "@tanstack/react-table";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Url } from "@/app/types";
 import UpdateForm from "@/app/home/update";
 import { FaTrash, FaEdit } from "react-icons/fa";
+import { StatusFilter } from "./statusfilter";
+
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -16,6 +18,8 @@ interface DataTableProps<TData, TValue> {
 export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData, TValue>) {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentUrl, setCurrentUrl] = useState<Url | null>(null);
+    const [sorting, setSorting] = React.useState<SortingState>([])
+
 
     const handleUpdate = (url: Url) => {
         setCurrentUrl(url);
@@ -37,11 +41,37 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     const table = useReactTable({
         data,
         columns,
+        onSortingChange: setSorting,
+        // onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
-    });
+        // getPaginationRowModel: getPaginationRowModel(),
+        getSortedRowModel: getSortedRowModel(),
+        getFilteredRowModel: getFilteredRowModel(),
+        // onColumnVisibilityChange: setColumnVisibility,
+        state: {
+            sorting,
+            // columnFilters,
+            // columnVisibility,
+        },
+    })
+
+    const statusOptions = ['All', 'Active', 'Inactive']
+    const selectedStatus = (table.getColumn("status")?.getFilterValue() as string) ?? 'All'
+
+    const handleFilterChange = (status: string) => {
+        table.getColumn("status")?.setFilterValue(status === 'All' ? undefined : status)
+    }
 
     return (
         <div className="">
+            <div className="py-4">
+
+                <StatusFilter
+                    options={statusOptions}
+                    selectedStatus={selectedStatus}
+                    onStatusChange={handleFilterChange}
+                />
+            </div>
             <Table>
                 <TableHeader className="bg-[#181E29]  ">
                     {table.getHeaderGroups().map((headerGroup) => (
