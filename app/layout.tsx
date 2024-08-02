@@ -18,9 +18,12 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <Notification />
+            <ApiProvider>
 
-            <body className={inter.className}>{children}</body>
+                <Notification />
+
+                <body className={inter.className}>{children}</body>
+            </ApiProvider>
 
 
         </html>

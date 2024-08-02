@@ -6,11 +6,16 @@ import { notify } from './components/toast';
 import { useKindeBrowserClient } from '@kinde-oss/kinde-auth-nextjs';
 
 // Define the shape of the API context state
+
+interface IUrlProps {
+    url: string,
+    userId: any
+}
 interface ApiContextState {
     userId: string | null;
     urls: string[];
-    fetchUrls: () => void;
-    createUrl: (url: string) => Promise<void>;
+    getUrlsByUserId: (userId: any) => void;
+    createUrl: (values: IUrlProps) => Promise<void>;
     updateUrl: (shortUrl: string, newUrl: string) => Promise<void>;
     deleteUrl: (shortUrl: string) => Promise<void>;
     error: string | null;
@@ -18,30 +23,6 @@ interface ApiContextState {
 
 // Create a context with a default value
 const ApiContext = createContext<ApiContextState | undefined>(undefined);
-
-// Error handling function
-const handleAxiosError = (error: any) => {
-    if (axios.isAxiosError(error)) {
-        // Axios error
-        if (error.response) {
-            // Server responded with a status other than 200 range
-            console.error('Server Error:', error.response.data);
-            notify.error(error.response.data.message || 'Server error occurred');
-        } else if (error.request) {
-            // Request was made but no response was received
-            console.error('Network Error:', error.request);
-            notify.error('Network error occurred. Please try again later.');
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            console.error('Error:', error.message);
-            notify.error('An error occurred. Please try again.');
-        }
-    } else {
-        // Non-Axios error
-        console.error('Error:', error);
-        notify.error('An unknown error occurred. Please try again.');
-    }
-};
 
 export const useApi = () => {
     const context = useContext(ApiContext);
@@ -60,35 +41,35 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     const [urls, setUrls] = useState<string[]>([]);
     const [error, setError] = useState<string | null>(null);
     const { user } = useKindeBrowserClient(); // Assuming `user` has user ID
-    const port = process.env.BACKEND_API || '';
 
     useEffect(() => {
         // Fetch user ID from Kinde and set it
         if (user) {
-            setUserId(user.id); // Adjust according to the actual user object structure
+            setUserId(user.id);
+            console.log(user.id, "userId")
         }
     }, [user]);
 
-    const fetchUrls = async () => {
+    const getUrlsByUserId = async (userId: any) => {
         try {
-            const response = await axios.get('/api/urls');
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/${userId}`);
             setUrls(response.data);
         } catch (error) {
-            handleAxiosError(error);
+            console.log(error)
         }
     };
 
-    const createUrl = async (url: string) => {
+    const createUrl = async (values: IUrlProps) => {
         if (!userId) {
             notify.error('User not authenticated');
             return;
         }
         try {
-            const response = await axios.post(`${port}/api/shorten`, { originalUrl: url, userId });
+            const response = await axios.post(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/shorten`, values);
             notify.success('URL created successfully');
-            await fetchUrls(); // Refresh URL list
-        } catch (error) {
-            handleAxiosError(error);
+        } catch (error: any) {
+            notify.error(error.response.data.message)
+            throw Error;
         }
     };
 
@@ -96,9 +77,9 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
         try {
             const response = await axios.put(`/api/urls/${shortUrl}`, { originalUrl: newUrl });
             notify.success(response.data.message || 'URL updated successfully');
-            await fetchUrls(); // Refresh URL list
-        } catch (error) {
-            handleAxiosError(error);
+
+        } catch (error: any) {
+            notify.error(error.response.data.message)
         }
     };
 
@@ -106,15 +87,16 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
         try {
             const response = await axios.delete(`/api/urls/${shortUrl}`);
             notify.success(response.data.message || 'URL deleted successfully');
-            await fetchUrls(); // Refresh URL list
-        } catch (error) {
-            handleAxiosError(error);
+
+        } catch (error: any) {
+            notify.error(error.response.data.message)
+
         }
     };
 
     return (
         <ApiContext.Provider
-            value={{ userId, urls, fetchUrls, createUrl, updateUrl, deleteUrl, error }}
+            value={{ userId, urls, getUrlsByUserId, createUrl, updateUrl, deleteUrl, error }}
         >
             {children}
         </ApiContext.Provider>

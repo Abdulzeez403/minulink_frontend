@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import MlButton from './components/button';
 import { MdLogin } from "react-icons/md";
 import { RegisterLink, LoginLink, LogoutLink } from "@kinde-oss/kinde-auth-nextjs/components";
@@ -14,15 +14,27 @@ interface Session {
 }
 
 const HomeLayout: React.FC<Session> = ({ isUserAuthenticated }) => {
-
-    const { user, getUser } = useKindeBrowserClient();
-    const alsoUser = getUser();
-    console.log(user)
-
     const [originalUrl, setOriginalUrl] = useState('');
-    const { createUrl } = useApi();
-    const handleCreateUrl = (value: any) => {
-        createUrl(value)
+    const { createUrl, getUrlsByUserId } = useApi();
+    const { user } = useKindeBrowserClient();
+    const [userId, setUserId] = useState<string | null>(null);
+
+
+    useEffect(() => {
+        // Fetch user ID from Kinde and set it
+        if (user) {
+            setUserId(user.id);
+            console.log(user.id, "userId")
+        }
+    }, [user]);
+    const handleCreateUrl = (values: any) => {
+        const payload = {
+            originalUrl, userId
+        }
+        console.log(payload)
+        createUrl(payload as any)
+        getUrlsByUserId(userId)
+
 
     }
 
@@ -32,7 +44,7 @@ const HomeLayout: React.FC<Session> = ({ isUserAuthenticated }) => {
                 <h3 className='text-gradient font-bold text-[1.3rem]'>MinuLink</h3>
                 {
                     isUserAuthenticated ? (
-                        <div className="flex justify-center items-center pt-10">
+                        <div className="hidden md:flex  lg:flex justify-center items-center pt-4">
                             <div className="border-2 rounded-full pl-4 bg-black">
                                 <div className="flex justify-between">
                                     <div className="flex justify-center items-center">
@@ -44,7 +56,7 @@ const HomeLayout: React.FC<Session> = ({ isUserAuthenticated }) => {
                                             placeholder='Enter your link'
                                             value={originalUrl}
                                             onChange={(e) => setOriginalUrl(e.target.value)}
-                                            className='bg-black py-4 outline-none placeholder:text-slate-200 text-white md:w-96 lg:w-96 rounded-full'
+                                            className='bg-black py-3 outline-none placeholder:text-slate-200 text-white md:w-96 lg:w-96 rounded-full'
                                         />
                                     </div>
                                     <MlButton

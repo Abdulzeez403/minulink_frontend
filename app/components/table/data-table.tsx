@@ -8,6 +8,7 @@ import { Url } from "@/app/types";
 import UpdateForm from "@/app/home/update";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { StatusFilter } from "./statusfilter";
+import { Button } from "@/components/ui/button";
 
 
 interface DataTableProps<TData, TValue> {
@@ -27,14 +28,11 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     };
 
     const handleUpdateSubmit = (updatedUrl: Url) => {
-        // Implement the logic to update the URL in the data
         console.log("Updated URL:", updatedUrl);
-        // Close the modal
         setIsModalOpen(false);
     };
 
     const handleDelete = async (urlId: string) => {
-        // Implement the logic to delete the URL
         console.log(`Delete URL with ID: ${urlId}`);
     };
 
@@ -61,7 +59,8 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     const handleFilterChange = (status: string) => {
         table.getColumn("status")?.setFilterValue(status === 'All' ? undefined : status)
     }
-
+    const rowModel = table.getRowModel();
+    const rows = rowModel?.rows || [];
     return (
         <div className="">
             <div className="py-4">
@@ -88,8 +87,8 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                     ))}
                 </TableHeader>
                 <TableBody className="border-none">
-                    {table.getRowModel().rows?.length ? (
-                        table.getRowModel().rows.map((row) => (
+                    {rows.length ? (
+                        rows.map((row) => (
                             <TableRow
                                 key={row.id}
                                 data-state={row.getIsSelected() && "selected"}
@@ -102,20 +101,18 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                                 ))}
                                 <TableCell>
                                     <div className="flex space-x-2">
-                                        <button
+                                        <Button
                                             onClick={() => handleUpdate(row.original)}
-                                            className="px-2 py-3 text-sm text-white  rounded-full border-2 border-slate-300  flex items-center space-x-1"
+                                            className="px-2 py-3 text-sm text-white rounded-full border-2 border-slate-300 flex items-center space-x-1"
                                         >
                                             <FaEdit />
-                                            {/* <span>Update</span> */}
-                                        </button>
-                                        <button
+                                        </Button>
+                                        <Button
                                             onClick={() => handleDelete(row.original.id)}
                                             className="px-2 py-3 text-sm text-white border-2 border-grey-200 rounded-full flex items-center space-x-1"
                                         >
                                             <FaTrash />
-                                            {/* <span>Delete</span> */}
-                                        </button>
+                                        </Button>
                                     </div>
                                 </TableCell>
                             </TableRow>
