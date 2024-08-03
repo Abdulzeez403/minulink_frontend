@@ -40,7 +40,7 @@ const HomeLayout: React.FC<Session> = ({ isUserAuthenticated }) => {
 
     return (
         <div>
-            <div className="flex justify-between items-center px-10 pt-10">
+            <div className="flex justify-between items-center px-20 pt-10">
                 <h3 className='text-gradient font-bold text-[1.3rem]'>MinuLink</h3>
                 {
                     isUserAuthenticated ? (

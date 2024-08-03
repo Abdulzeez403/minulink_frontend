@@ -67,7 +67,7 @@ export const columns: ColumnDef<Url>[] = [
                     //     e.currentTarget.src = '/fallback-favicon.ico'; // Fallback favicon
                     // }}
                     />
-                    <p>{originalUrl}</p>
+                    <p>{originalUrl.slice(0, 30)}</p>
                 </div>
             );
         },

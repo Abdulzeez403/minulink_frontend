@@ -53,7 +53,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
     const getUrlsByUserId = async (userId: any) => {
         try {
             const response = await axios.get(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/user/${userId}`);
-            setUrls(response.data);
+            setUrls(response.data.data);
         } catch (error) {
             console.log(error)
         }
@@ -85,7 +85,7 @@ export const ApiProvider: React.FC<ApiProviderProps> = ({ children }) => {
 
     const deleteUrl = async (shortUrl: string) => {
         try {
-            const response = await axios.delete(`/api/urls/${shortUrl}`);
+            const response = await axios.delete(`${process.env.NEXT_PUBLIC_BACKEND_API}/api/delete/${shortUrl}`);
             notify.success(response.data.message || 'URL deleted successfully');
 
         } catch (error: any) {

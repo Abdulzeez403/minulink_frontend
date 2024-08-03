@@ -14,9 +14,13 @@ import { useKindeBrowserClient } from "@kinde-oss/kinde-auth-nextjs";
 export default function TablePage() {
 
     const { urls, getUrlsByUserId } = useApi();
-    const { user } = useKindeBrowserClient();
+
+    const { getUser } = useKindeBrowserClient();
+    const user = getUser();
+
 
     useEffect(() => {
+        getUser();
         getUrlsByUserId(user?.id);
         console.log(urls, "The urls!")
 

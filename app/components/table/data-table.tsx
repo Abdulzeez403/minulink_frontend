@@ -9,6 +9,7 @@ import UpdateForm from "@/app/home/update";
 import { FaTrash, FaEdit } from "react-icons/fa";
 import { StatusFilter } from "./statusfilter";
 import { Button } from "@/components/ui/button";
+import { useApi } from "@/app/context";
 
 
 interface DataTableProps<TData, TValue> {
@@ -20,6 +21,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentUrl, setCurrentUrl] = useState<Url | null>(null);
     const [sorting, setSorting] = React.useState<SortingState>([])
+    const { deleteUrl } = useApi()
 
 
     const handleUpdate = (url: Url) => {
@@ -108,7 +110,7 @@ export function DataTable<TData, TValue>({ columns, data }: DataTableProps<TData
                                             <FaEdit />
                                         </Button>
                                         <Button
-                                            onClick={() => handleDelete(row.original.id)}
+                                            onClick={() => deleteUrl(row.original.id)}
                                             className="px-2 py-3 text-sm text-white border-2 border-grey-200 rounded-full flex items-center space-x-1"
                                         >
                                             <FaTrash />
